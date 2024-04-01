@@ -37,7 +37,15 @@ function Main() {
         credentials: 'include'
       });
       const newPost = await response.json();
+      console.log(newPost)
       setPosts([newPost, ...posts]);
+      
+      // Clear the form
+      setForm({
+        title: '',
+        content: '',
+        credentials: 'include'
+      });
     };
 
     const handleLogout = () => {

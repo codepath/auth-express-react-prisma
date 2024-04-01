@@ -39,7 +39,8 @@ router.post('/users', async (req, res) => {
     });
 
     // Set the user in the session
-    req.session.user = newUser;
+    // req.session.user = newUser;
+    req.session.user = { id: newUser.id, username: newUser.username };
 
     // Return the user data in the response
     res.json({ user: newUser });
@@ -69,7 +70,9 @@ router.post('/users/login', async (req, res) => {
     }
 
     // Set the user in the session
-    req.session.user = user;
+    // req.session.user = user;
+    req.session.user = { id: user.id, username: user.username };
+
 
     // Return the user data in the response
     res.json({ user });

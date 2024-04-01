@@ -26,7 +26,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      sameSite: false,
+      // sameSite: false,
+      httpOnly: false,
       secure: false,
       expires: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)) // 1 year in milliseconds
     }
@@ -43,11 +44,11 @@ app.get('/posts', async (req, res) => {
       orderBy: { createdAt: 'desc' }
     });
     res.json(posts);
-    console.log(posts)
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 // Route to create a new post
 app.post('/posts', async (req, res) => {
@@ -63,7 +64,8 @@ app.post('/posts', async (req, res) => {
     // Create the post with the current user ID
     const post = await prisma.post.create({
       data: {
-        ...req.body,
+        title: req.body.title,    // Explicitly specify the fields
+        content: req.body.content,
         userId: currentUser.id
       },
       include: { user: true }
@@ -71,6 +73,7 @@ app.post('/posts', async (req, res) => {
 
     res.status(201).json(post);
   } catch (err) {
+    console.log(err);  // Log the error for debugging
     res.status(500).json({ message: err.message });
   }
 });
