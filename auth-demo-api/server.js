@@ -3,7 +3,8 @@ import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
 import morgan from 'morgan';
-import { PrismaClient } from '@prisma/client';
+import pkg from '@prisma/client';
+const { PrismaClient } = pkg;
 import userRoutes from './routes/users.js';
 
 const prisma = new PrismaClient();
