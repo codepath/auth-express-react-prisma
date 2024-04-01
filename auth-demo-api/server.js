@@ -15,7 +15,8 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json()); // Middleware for parsing JSON bodies from HTTP requests
-app.use(morgan());
+// app.use(morgan());
+app.use(morgan('dev'));
 
 // Session middleware
 // Note: You may need to switch to a different session store that doesn't rely on Sequelize
@@ -42,6 +43,7 @@ app.get('/posts', async (req, res) => {
       orderBy: { createdAt: 'desc' }
     });
     res.json(posts);
+    console.log(posts)
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -73,7 +75,7 @@ app.post('/posts', async (req, res) => {
   }
 });
 
-const port = 5432;
+const port = 3000;
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`);
 });

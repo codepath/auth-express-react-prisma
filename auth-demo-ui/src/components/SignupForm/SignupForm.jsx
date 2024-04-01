@@ -16,7 +16,7 @@ const SignupForm = () => {
 
     try {
       // Make the signup API request
-      const response = await fetch(`http://localhost:5432/users`, {
+      const response = await fetch(`http://localhost:3000/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,6 +24,9 @@ const SignupForm = () => {
         body: JSON.stringify({ username, email, password }),
         credentials: 'include'
       });
+
+      console.log("******* ")
+      console.log(response)
 
       if (response.ok) {
         const data = await response.json();
