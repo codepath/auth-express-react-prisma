@@ -3,11 +3,10 @@ import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
 import morgan from 'morgan';
-import { sequelize } from './database.js';
-import { User, Post } from './models/index.js';
+import { PrismaClient } from '@prisma/client';
 import userRoutes from './routes/users.js';
-import SequelizeStoreInit from 'connect-session-sequelize';
 
+const prisma = new PrismaClient();
 const app = express();
 
 app.use(cors({
@@ -15,20 +14,15 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json()); // Middleware for parsing JSON bodies from HTTP requests
-app.use(morgan())
-
-const SequelizeStore = SequelizeStoreInit(session.Store);
-const sessionStore = new SequelizeStore({
-  db: sequelize
-});
+app.use(morgan());
 
 // Session middleware
+// Note: You may need to switch to a different session store that doesn't rely on Sequelize
 app.use(
   session({
     secret: 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    store: sessionStore,
     cookie: {
       sameSite: false,
       secure: false,
@@ -36,16 +30,15 @@ app.use(
     }
   })
 );
-sessionStore.sync();
 
 app.use(userRoutes);
 
 // Route to get all posts, with associated users
 app.get('/posts', async (req, res) => {
   try {
-    const posts = await Post.findAll({
-      include: [{ model: User, as: 'user' }],
-      order: [['createdAt', 'DESC']]
+    const posts = await prisma.post.findMany({
+      include: { user: true },
+      orderBy: { createdAt: 'desc' }
     });
     res.json(posts);
   } catch (err) {
@@ -65,29 +58,21 @@ app.post('/posts', async (req, res) => {
     const currentUser = req.session.user;
 
     // Create the post with the current user ID
-    const post = await Post.create({
-      ...req.body,
-      userId: currentUser.id
+    const post = await prisma.post.create({
+      data: {
+        ...req.body,
+        userId: currentUser.id
+      },
+      include: { user: true }
     });
 
-    const postWithUser = await Post.findOne({
-      where: { id: post.id },
-      include: [{ model: User, as: 'user' }]
-    });
-
-    res.status(201).json(postWithUser);
+    res.status(201).json(post);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-sequelize.sync({ alter: true })
-  .then(() => {
-    const port = 3000;
-    app.listen(port, () => {
-      console.log(`App is listening on port ${port}`);
-    });
-  })
-  .catch(error => {
-    console.error('Unable to connect to the database:', error);
-  });
+const port = 5432;
+app.listen(port, () => {
+  console.log(`App is listening on port ${port}`);
+});
