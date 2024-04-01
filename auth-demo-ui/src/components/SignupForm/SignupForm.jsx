@@ -16,7 +16,7 @@ const SignupForm = () => {
 
     try {
       // Make the signup API request
-      const response = await fetch(`http://localhost:3000/users`, {
+      const response = await fetch(`http://localhost:5432/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

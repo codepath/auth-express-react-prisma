@@ -14,7 +14,7 @@ function Main() {
   
     useEffect(() => {
       const fetchPosts = async () => {
-        const response = await fetch('http://localhost:3000/posts');
+        const response = await fetch('http://localhost:5432/posts');
         const data = await response.json();
         setPosts(data);
       };
@@ -30,7 +30,7 @@ function Main() {
   
     const handleSubmit = async (event) => {
       event.preventDefault();
-      const response = await fetch('http://localhost:3000/posts', {
+      const response = await fetch('http://localhost:5432/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
