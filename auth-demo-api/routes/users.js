@@ -1,8 +1,8 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
-import { User } from '../models/user.js';
-import { Op } from 'sequelize';
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 const router = express.Router();
 
 // Route for user registration
@@ -11,9 +11,12 @@ router.post('/users', async (req, res) => {
 
   try {
     // Check if username or email already exists
-    const existingUser = await User.findOne({
+    const existingUser = await prisma.user.findFirst({
       where: {
-        [Op.or]: [{ username }, { email }]
+        OR: [
+          { username },
+          { email }
+        ]
       }
     });
 
@@ -25,7 +28,13 @@ router.post('/users', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create a new user
-    const newUser = await User.create({ username, password: hashedPassword, email });
+    const newUser = await prisma.user.create({
+      data: {
+        username,
+        password: hashedPassword,
+        email
+      }
+    });
 
     // Set the user in the session
     req.session.user = newUser;
@@ -44,7 +53,7 @@ router.post('/users/login', async (req, res) => {
 
   try {
     // Find the user by username
-    const user = await User.findOne({ where: { username } });
+    const user = await prisma.user.findUnique({ where: { username } });
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid username or password' });
