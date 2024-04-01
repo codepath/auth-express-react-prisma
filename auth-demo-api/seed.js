@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { User, Post } from './models/index.js';
-import { sequelize } from './database.js';
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -12,21 +12,23 @@ const postData = JSON.parse(fs.readFileSync(path.resolve(__dirname, './seeders/p
 
 const seedDatabase = async () => {
   try {
-    // Sync all models that aren't already in the database
-    await sequelize.sync({ alter: true });
-
-    // Then seed the User and Post data
-    // Note: if this file is run more than once,
-    // it will fail because of duplicate users.
-    await User.bulkCreate(userData);
+    // Seed the User data
+    await prisma.user.createMany({
+      data: userData,
+      skipDuplicates: true, // Skip seeding if records already exist
+    });
     console.log('User data has been seeded!');
 
-    await Post.bulkCreate(postData);
+    // Seed the Post data
+    await prisma.post.createMany({
+      data: postData,
+      skipDuplicates: true,
+    });
     console.log('Post data has been seeded!');
   } catch (error) {
     console.error('Error seeding data:', error);
   } finally {
-    await sequelize.close();
+    await prisma.$disconnect();
   }
 };
 
