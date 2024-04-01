@@ -82,4 +82,23 @@ router.post('/users/login', async (req, res) => {
   }
 });
 
+
+
+
+router.post('/users/logout', (req, res) => {
+  // Clear the session
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ message: 'Failed to logout' });
+    }
+
+    // Clear the cookie
+    res.clearCookie('connect.sid'); // Replace 'connect.sid' with your cookie name
+
+    // Send a success response
+    res.status(200).json({ message: 'Logged out successfully' });
+  });
+});
+
+
 export default router;

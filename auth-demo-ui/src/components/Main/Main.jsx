@@ -1,9 +1,10 @@
 import "./Main.css"
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../UserContext.js";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Main() {
+    const navigate = useNavigate();
     const { user, updateUser } = useContext(UserContext);
     const [posts, setPosts] = useState([]);
     const [form, setForm] = useState({
@@ -48,11 +49,18 @@ function Main() {
       });
     };
 
-    const handleLogout = () => {
-      // Perform logout logic here
-      // Example: Clear user data from localStorage, reset user state, etc.
+    const handleLogout = async () => {
+      // Send a request to the server to end the session
+      await fetch('http://localhost:3000/users/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+    
+      // Clear the user context on the client side
       updateUser(null);
-    };
+
+      navigate('/login');
+    };    
   
     return (
       <div className="main">
